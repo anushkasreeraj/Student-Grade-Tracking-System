@@ -2,253 +2,338 @@ import tkinter as tk
 from tkinter import messagebox
 import csv
 import os
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-
-# Define the file name for storing student data
+# ===== FILE NAMES =====
 STUDENT_FILE = 'students.csv'
+USER_FILE = 'users.csv'
 
 
-# Create the main class for the system
 class GradeTrackerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Student Grade Tracker")
-        self.root.geometry("600x400")
+        self.root.geometry("600x500")
 
-        # Initialize the main window
-        self.create_home_page()
+        self.current_user = None
+        self.create_login_page()
+        self.initialize_files()
 
-    def create_home_page(self):
-        # Clear the window
-        for widget in self.root.winfo_children():
-            widget.destroy()
-
-        # Home page layout
-        title_label = tk.Label(self.root, text="Student Grade Tracker", font=("Arial", 20))
-        title_label.pack(pady=20)
-
-        # Buttons for navigation
-        add_btn = tk.Button(self.root, text="Add Student Record", width=20, command=self.add_student_page)
-        add_btn.pack(pady=10)
-
-        edit_btn = tk.Button(self.root, text="Edit/Delete Student Record", width=20, command=self.edit_delete_page)
-        edit_btn.pack(pady=10)
-
-        view_btn = tk.Button(self.root, text="View All Records", width=20, command=self.view_all_records)
-        view_btn.pack(pady=10)
-
-        report_btn = tk.Button(self.root, text="Generate Performance Report", width=20, command=self.generate_report)
-        report_btn.pack(pady=10)
-
-        self.load_student_data()
-
-    def load_student_data(self):
-        """ Load student data from CSV file """
+    def initialize_files(self):
         if not os.path.exists(STUDENT_FILE):
             with open(STUDENT_FILE, mode='w', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow(["ID", "Name", "Subject 1", "Subject 2", "Subject 3", "Subject 4", "Grade"])
 
-    def add_student_page(self):
-        # Clear the window and create the Add Student page
+        if not os.path.exists(USER_FILE):
+            with open(USER_FILE, mode='w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(["Username", "Password", "Role"])
+
+    # ================= LOGIN / SIGNUP =================
+    def create_login_page(self):
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        # Form elements to add a new student
-        title_label = tk.Label(self.root, text="Add Student Record", font=("Arial", 20))
-        title_label.pack(pady=20)
+        tk.Label(self.root, text="Login", font=("Arial", 24, "bold")).pack(pady=20)
 
-        # Student Name and ID fields
-        tk.Label(self.root, text="Student ID").pack(pady=5)
-        self.student_id_entry = tk.Entry(self.root)
-        self.student_id_entry.pack(pady=5)
+        tk.Label(self.root, text="Username:").pack()
+        self.username_entry = tk.Entry(self.root)
+        self.username_entry.pack(pady=5)
 
-        tk.Label(self.root, text="Student Name").pack(pady=5)
-        self.student_name_entry = tk.Entry(self.root)
-        self.student_name_entry.pack(pady=5)
+        tk.Label(self.root, text="Password:").pack()
+        self.password_entry = tk.Entry(self.root, show="*")
+        self.password_entry.pack(pady=5)
 
-        # Subject grades fields
-        tk.Label(self.root, text="Grade for Subject 1").pack(pady=5)
-        self.subject1_entry = tk.Entry(self.root)
-        self.subject1_entry.pack(pady=5)
+        tk.Button(self.root, text="Login", width=15, command=self.login).pack(pady=10)
+        tk.Button(self.root, text="Sign Up", width=15, command=self.create_signup_page).pack(pady=5)
 
-        tk.Label(self.root, text="Grade for Subject 2").pack(pady=5)
-        self.subject2_entry = tk.Entry(self.root)
-        self.subject2_entry.pack(pady=5)
+    def create_signup_page(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
 
-        tk.Label(self.root, text="Grade for Subject 3").pack(pady=5)
-        self.subject3_entry = tk.Entry(self.root)
-        self.subject3_entry.pack(pady=5)
+        tk.Label(self.root, text="Sign Up", font=("Arial", 24, "bold")).pack(pady=20)
 
-        tk.Label(self.root, text="Grade for Subject 4").pack(pady=5)
-        self.subject4_entry = tk.Entry(self.root)
-        self.subject4_entry.pack(pady=5)
+        tk.Label(self.root, text="Username:").pack()
+        self.new_username_entry = tk.Entry(self.root)
+        self.new_username_entry.pack(pady=5)
 
-        # Save button
-        save_btn = tk.Button(self.root, text="Save", command=self.save_student)
-        save_btn.pack(pady=20)
+        tk.Label(self.root, text="Password:").pack()
+        self.new_password_entry = tk.Entry(self.root, show="*")
+        self.new_password_entry.pack(pady=5)
 
-        # Back to Home button
-        back_btn = tk.Button(self.root, text="Back to Home", command=self.create_home_page)
-        back_btn.pack(pady=10)
+        tk.Label(self.root, text="Role (admin/student):").pack()
+        self.role_entry = tk.Entry(self.root)
+        self.role_entry.pack(pady=5)
 
-    def save_student(self):
-        # Get the input values
-        student_id = self.student_id_entry.get()
-        student_name = self.student_name_entry.get()
-        subject1 = self.subject1_entry.get()
-        subject2 = self.subject2_entry.get()
-        subject3 = self.subject3_entry.get()
-        subject4 = self.subject4_entry.get()
+        tk.Button(self.root, text="Sign Up", width=15, command=self.signup).pack(pady=10)
+        tk.Button(self.root, text="Back to Login", width=15, command=self.create_login_page).pack(pady=5)
 
-        # Grade Calculation: Average of the 4 subjects
-        try:
-            grades = [float(subject1), float(subject2), float(subject3), float(subject4)]
-            avg_grade = sum(grades) / len(grades)
+    def signup(self):
+        username = self.new_username_entry.get().strip()
+        password = self.new_password_entry.get().strip()
+        role = self.role_entry.get().strip().lower()
 
-            if avg_grade >= 90:
-                grade = "A"
-            elif avg_grade >= 80:
-                grade = "B"
-            elif avg_grade >= 70:
-                grade = "C"
-            elif avg_grade >= 60:
-                grade = "D"
-            else:
-                grade = "F"
-        except ValueError:
-            messagebox.showerror("Input Error", "Please enter valid numbers for grades.")
+        if not username or not password or role not in ["admin", "student"]:
+            messagebox.showerror("Error", "Invalid input! Role must be 'admin' or 'student'.")
             return
 
-        # Save the student data in the CSV file
-        with open(STUDENT_FILE, mode='a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([student_id, student_name, subject1, subject2, subject3, subject4, grade])
+        with open(USER_FILE, mode='r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if row and row[0] == username:
+                    messagebox.showerror("Error", "Username already exists!")
+                    return
 
-        messagebox.showinfo("Success", f"Student {student_name} has been added successfully!")
-        self.create_home_page()
+        with open(USER_FILE, mode='a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([username, password, role])
 
-    def edit_delete_page(self):
-        # Clear the window and create the Edit/Delete page
+        messagebox.showinfo("Success", "Sign up successful! You can now log in.")
+        self.create_login_page()
+
+    def login(self):
+        username = self.username_entry.get().strip()
+        password = self.password_entry.get().strip()
+
+        with open(USER_FILE, mode='r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if row and row[0] == username and row[1] == password:
+                    self.current_user = {"username": username, "role": row[2]}
+                    messagebox.showinfo("Login Successful", f"Welcome, {username} ({row[2]})")
+                    self.create_home_page()
+                    return
+
+        messagebox.showerror("Error", "Invalid username or password!")
+
+    # ================= MAIN HOME PAGE =================
+    def create_home_page(self):
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        # Form to search for a student by ID
-        title_label = tk.Label(self.root, text="Edit/Delete Student Record", font=("Arial", 20))
-        title_label.pack(pady=20)
+        tk.Label(self.root, text=f"Welcome {self.current_user['username']}!", font=("Arial", 18)).pack(pady=10)
+        tk.Label(self.root, text="Student Grade Tracker", font=("Arial", 20, "bold")).pack(pady=10)
 
-        tk.Label(self.root, text="Enter Student ID to search").pack(pady=5)
-        self.search_id_entry = tk.Entry(self.root)
-        self.search_id_entry.pack(pady=5)
+        if self.current_user['role'] == "admin":
+            tk.Button(self.root, text="Add Student Record", width=25, command=self.add_student_page).pack(pady=10)
+            tk.Button(self.root, text="Edit/Delete Student Record", width=25, command=self.edit_delete_page).pack(pady=10)
+            tk.Button(self.root, text="View All Records", width=25, command=self.view_all_records).pack(pady=10)
+            tk.Button(self.root, text="Generate Performance Report", width=25, command=self.report_input_page).pack(pady=10)
+        else:
+            tk.Button(self.root, text="View All Records", width=25, command=self.view_all_records).pack(pady=10)
+            tk.Button(self.root, text="View My Performance Report", width=25, command=self.report_input_page).pack(pady=10)
 
-        search_btn = tk.Button(self.root, text="Search", command=self.search_student)
-        search_btn.pack(pady=10)
+        tk.Button(self.root, text="Logout", width=15, command=self.create_login_page).pack(pady=10)
 
-        # Back to Home button
-        back_btn = tk.Button(self.root, text="Back to Home", command=self.create_home_page)
-        back_btn.pack(pady=10)
+    # ================= ADD STUDENT =================
+    def add_student_page(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        tk.Label(self.root, text="Add Student Record", font=("Arial", 20, "bold")).pack(pady=20)
+
+        labels = ["Student ID", "Student Name", "Subject 1", "Subject 2", "Subject 3", "Subject 4"]
+        self.entries = {}
+        for label in labels:
+            tk.Label(self.root, text=label).pack()
+            self.entries[label] = tk.Entry(self.root)
+            self.entries[label].pack(pady=3)
+
+        tk.Button(self.root, text="Save", command=self.save_student).pack(pady=15)
+        tk.Button(self.root, text="Back to Home", command=self.create_home_page).pack(pady=5)
+
+    def save_student(self):
+        try:
+            student_id = self.entries["Student ID"].get()
+            name = self.entries["Student Name"].get()
+            marks = [float(self.entries[f"Subject {i}"].get()) for i in range(1, 5)]
+        except ValueError:
+            messagebox.showerror("Error", "Please enter valid numeric grades.")
+            return
+
+        avg = sum(marks) / 4
+        grade = self.calculate_grade(avg)
+
+        with open(STUDENT_FILE, mode='a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([student_id, name, *marks, grade])
+
+        messagebox.showinfo("Success", "Student record added!")
+        self.create_home_page()
+
+    # ================= EDIT / DELETE =================
+    def edit_delete_page(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        tk.Label(self.root, text="Edit/Delete Student Record", font=("Arial", 20, "bold")).pack(pady=20)
+        tk.Label(self.root, text="Enter Student ID:").pack()
+        self.search_entry = tk.Entry(self.root)
+        self.search_entry.pack(pady=5)
+
+        tk.Button(self.root, text="Search", command=self.search_student).pack(pady=10)
+        tk.Button(self.root, text="Back", command=self.create_home_page).pack(pady=10)
 
     def search_student(self):
-        student_id = self.search_id_entry.get()
+        sid = self.search_entry.get().strip()
+        with open(STUDENT_FILE, mode='r') as f:
+            reader = csv.reader(f)
+            data = list(reader)
 
-        # Search for the student in the file
-        with open(STUDENT_FILE, mode='r') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if row[0] == student_id:
-                    self.show_student_details(row)
-                    return
-            messagebox.showerror("Not Found", "Student ID not found!")
+        for row in data:
+            if row and row[0] == sid:
+                self.show_edit_page(row)
+                return
+        messagebox.showerror("Error", "Student not found!")
 
-    def show_student_details(self, student_data):
-        # Clear the window and show student details with options to edit or delete
+    def show_edit_page(self, student_data):
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        title_label = tk.Label(self.root, text="Student Record", font=("Arial", 20))
-        title_label.pack(pady=20)
+        tk.Label(self.root, text="Edit Student Record", font=("Arial", 20, "bold")).pack(pady=20)
 
-        tk.Label(self.root, text=f"ID: {student_data[0]}").pack(pady=5)
-        tk.Label(self.root, text=f"Name: {student_data[1]}").pack(pady=5)
-        tk.Label(self.root, text=f"Subject 1: {student_data[2]}").pack(pady=5)
-        tk.Label(self.root, text=f"Subject 2: {student_data[3]}").pack(pady=5)
-        tk.Label(self.root, text=f"Subject 3: {student_data[4]}").pack(pady=5)
-        tk.Label(self.root, text=f"Subject 4: {student_data[5]}").pack(pady=5)
-        tk.Label(self.root, text=f"Grade: {student_data[6]}").pack(pady=5)
+        fields = ["ID", "Name", "Subject 1", "Subject 2", "Subject 3", "Subject 4"]
+        self.edit_entries = {}
+        for i, field in enumerate(fields):
+            tk.Label(self.root, text=field).pack()
+            e = tk.Entry(self.root)
+            e.insert(0, student_data[i])
+            e.pack(pady=3)
+            self.edit_entries[field] = e
 
-        # Buttons to edit or delete
-        edit_btn = tk.Button(self.root, text="Edit", command=lambda: self.edit_student(student_data))
-        edit_btn.pack(pady=10)
+        tk.Button(self.root, text="Save Changes", command=lambda: self.save_edited_student(student_data[0])).pack(pady=10)
+        tk.Button(self.root, text="Delete Record", command=lambda: self.delete_student(student_data[0])).pack(pady=10)
+        tk.Button(self.root, text="Back", command=self.create_home_page).pack(pady=10)
 
-        delete_btn = tk.Button(self.root, text="Delete", command=lambda: self.delete_student(student_data[0]))
-        delete_btn.pack(pady=10)
+    def save_edited_student(self, old_id):
+        updated_data = [self.edit_entries["ID"].get(), self.edit_entries["Name"].get()]
+        try:
+            marks = [float(self.edit_entries[f"Subject {i}"].get()) for i in range(1, 5)]
+        except ValueError:
+            messagebox.showerror("Error", "Please enter valid numeric grades.")
+            return
 
-        # Back to Home button
-        back_btn = tk.Button(self.root, text="Back to Home", command=self.create_home_page)
-        back_btn.pack(pady=10)
+        avg = sum(marks) / 4
+        grade = self.calculate_grade(avg)
+        updated_data.extend(marks)
+        updated_data.append(grade)
 
-    def edit_student(self, student_data):
-        # Edit functionality (this part needs to be implemented)
-        pass  # You can implement the edit functionality here
+        with open(STUDENT_FILE, mode='r') as f:
+            data = list(csv.reader(f))
 
-    def delete_student(self, student_id):
-        # Remove the student from the CSV file
-        rows = []
-        with open(STUDENT_FILE, mode='r') as file:
-            reader = csv.reader(file)
-            rows = list(reader)
+        with open(STUDENT_FILE, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            for row in data:
+                if row and row[0] == old_id:
+                    writer.writerow(updated_data)
+                else:
+                    writer.writerow(row)
 
-        rows = [row for row in rows if row[0] != student_id]
-
-        with open(STUDENT_FILE, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerows(rows)
-
-        messagebox.showinfo("Success", "Student record has been deleted!")
+        messagebox.showinfo("Success", "Record updated successfully!")
         self.create_home_page()
 
+    def delete_student(self, sid):
+        with open(STUDENT_FILE, mode='r') as f:
+            data = list(csv.reader(f))
+
+        with open(STUDENT_FILE, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            for row in data:
+                if row and row[0] != sid:
+                    writer.writerow(row)
+
+        messagebox.showinfo("Deleted", "Record deleted successfully!")
+        self.create_home_page()
+
+    # ================= VIEW & REPORT =================
     def view_all_records(self):
-        # Clear the window and show all student records
         for widget in self.root.winfo_children():
             widget.destroy()
 
-        title_label = tk.Label(self.root, text="All Student Records", font=("Arial", 20))
-        title_label.pack(pady=20)
+        tk.Label(self.root, text="All Student Records", font=("Arial", 20, "bold")).pack(pady=20)
 
-        with open(STUDENT_FILE, mode='r') as file:
-            reader = csv.reader(file)
+        with open(STUDENT_FILE, mode='r') as f:
+            reader = csv.reader(f)
             for row in reader:
-                record_label = tk.Label(self.root, text=f"ID: {row[0]}, Name: {row[1]}, Grade: {row[6]}")
-                record_label.pack(pady=5)
+                if row and row[0] != "ID":
+                    tk.Label(self.root, text=f"ID: {row[0]}, Name: {row[1]}, Grade: {row[6]}").pack()
 
-        # Back to Home button
-        back_btn = tk.Button(self.root, text="Back to Home", command=self.create_home_page)
-        back_btn.pack(pady=10)
+        tk.Button(self.root, text="Back", command=self.create_home_page).pack(pady=10)
 
-    def generate_report(self):
-        # Generate performance report (average grade for each student)
-        with open(STUDENT_FILE, mode='r') as file:
-            reader = csv.reader(file)
-            report_data = []
+    def report_input_page(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        tk.Label(self.root, text="Performance Report", font=("Arial", 20, "bold")).pack(pady=20)
+        tk.Label(self.root, text="Enter Student ID:").pack(pady=5)
+
+        self.report_id_entry = tk.Entry(self.root)
+        self.report_id_entry.pack(pady=5)
+
+        tk.Button(self.root, text="Generate Report", command=self.generate_student_report).pack(pady=10)
+        tk.Button(self.root, text="Back", command=self.create_home_page).pack(pady=10)
+
+    def generate_student_report(self):
+        sid = self.report_id_entry.get().strip()
+        with open(STUDENT_FILE, mode='r') as f:
+            reader = csv.reader(f)
             for row in reader:
-                try:
-                    grades = [float(row[2]), float(row[3]), float(row[4]), float(row[5])]
-                    avg_grade = sum(grades) / len(grades)
-                    report_data.append(f"ID: {row[0]}, Name: {row[1]}, Avg Grade: {avg_grade:.2f}, Grade: {row[6]}")
-                except ValueError:
-                    continue
+                if row and row[0] == sid:
+                    self.show_student_report(row)
+                    return
+        messagebox.showerror("Error", "Student not found!")
 
-        report_window = tk.Toplevel(self.root)
-        report_window.title("Performance Report")
+    def show_student_report(self, student_data):
+        report_win = tk.Toplevel(self.root)
+        report_win.title(f"Performance Report - {student_data[1]}")
+        report_win.geometry("600x600")
 
-        for line in report_data:
-            tk.Label(report_window, text=line).pack()
+        try:
+            marks = [float(student_data[i]) for i in range(2, 6)]
+        except:
+            messagebox.showerror("Error", "Invalid marks in record!")
+            return
 
-        back_btn = tk.Button(report_window, text="Close", command=report_window.destroy)
-        back_btn.pack(pady=10)
+        avg = sum(marks) / 4
+        gpa = (avg / 20)  # Assuming 100 marks → 5 GPA scale
+        highest = max(marks)
+        lowest = min(marks)
+
+        tk.Label(report_win, text=f"Name: {student_data[1]}", font=("Arial", 16)).pack(pady=5)
+        tk.Label(report_win, text=f"Average Marks: {avg:.2f}", font=("Arial", 14)).pack(pady=5)
+        tk.Label(report_win, text=f"Grade: {student_data[6]}", font=("Arial", 14)).pack(pady=5)
+        tk.Label(report_win, text=f"GPA: {gpa:.2f}", font=("Arial", 14)).pack(pady=5)
+        tk.Label(report_win, text=f"Highest Marks: {highest}", font=("Arial", 14)).pack(pady=5)
+        tk.Label(report_win, text=f"Lowest Marks: {lowest}", font=("Arial", 14)).pack(pady=5)
+
+        # Create pie chart for marks distribution
+        fig, ax = plt.subplots(figsize=(4, 4))
+        subjects = ["Subject 1", "Subject 2", "Subject 3", "Subject 4"]
+        ax.pie(marks, labels=subjects, autopct="%1.1f%%", startangle=90)
+        ax.set_title("Subject-wise Marks Distribution")
+
+        chart = FigureCanvasTkAgg(fig, master=report_win)
+        chart.draw()
+        chart.get_tk_widget().pack(pady=10)
+
+        tk.Button(report_win, text="Close", command=report_win.destroy).pack(pady=10)
+
+    # ================= HELPER =================
+    def calculate_grade(self, avg):
+        if avg >= 90:
+            return "A"
+        elif avg >= 80:
+            return "B"
+        elif avg >= 70:
+            return "C"
+        elif avg >= 60:
+            return "D"
+        else:
+            return "F"
 
 
-# Main execution
 if __name__ == "__main__":
     root = tk.Tk()
     app = GradeTrackerApp(root)
