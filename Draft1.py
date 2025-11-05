@@ -14,8 +14,12 @@ STUDENT_FILE = "students.csv"
 class GradeTrackerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("College Grade Tracking System")
+        self.root.title("Grade Tracking System")
         self.root.geometry("900x700")
+##        bg= PhotoImage(file='background.jpg')
+##        l1=Label(self.root,image=bg)
+##        l1.image=bg
+##        l1.pack(fill=BOTH,expand=True)
         self.current_user = None
 
         self.ensure_files()
@@ -66,8 +70,8 @@ class GradeTrackerApp:
 
         btn_frame = tk.Frame(frame)
         btn_frame.pack(pady=10)
-        tk.Button(btn_frame, text="Login", width=14, command=self.login_user).grid(row=0, column=0, padx=6)
-        tk.Button(btn_frame, text="Sign Up", width=14, command=self.create_signup_page).grid(row=0, column=1, padx=6)
+        tk.Button(btn_frame, text="Login",bg='#053052',fg='white',width=14, command=self.login_user).grid(row=0, column=0, padx=6)
+        tk.Button(btn_frame, text="Sign Up",bg='white',fg='#053052', width=14, command=self.create_signup_page).grid(row=0, column=1, padx=6)
 
     def create_signup_page(self):
         for w in self.root.winfo_children():
@@ -592,3 +596,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
