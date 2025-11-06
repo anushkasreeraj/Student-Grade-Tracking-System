@@ -16,10 +16,6 @@ class GradeTrackerApp:
         self.root = root
         self.root.title("Grade Tracking System")
         self.root.geometry("900x700")
-##        bg= PhotoImage(file='background.jpg')
-##        l1=Label(self.root,image=bg)
-##        l1.image=bg
-##        l1.pack(fill=BOTH,expand=True)
         self.current_user = None
 
         self.ensure_files()
@@ -462,7 +458,7 @@ class GradeTrackerApp:
         win = tk.Toplevel(self.root)
         win.title(f"Performance Report - {recs[0][1]} ({recs[0][0]})")
         win.geometry("850x700")
-
+        win.configure(bg='#032042')
         tk.Label(win, text=f"{recs[0][1]}  —  {recs[0][0]}", font=("Arial", 16, "bold")).pack(pady=8)
 
         # course listing
