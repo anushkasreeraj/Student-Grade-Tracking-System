@@ -93,8 +93,8 @@ class GradeTrackerApp:
         self.signup_role = tk.Entry(frame)
         self.signup_role.pack(pady=4)
 
-        tk.Button(frame, text="Register", width=16, command=self.register_user).pack(pady=8)
-        tk.Button(frame, text="Back to Login", width=16, command=self.create_login_page).pack()
+        tk.Button(frame, text="Register",bg="#034715",fg='white', width=16, command=self.register_user).pack(pady=8)
+        tk.Button(frame, text="Back to Login",bg='#030e47',fg='white', width=16, command=self.create_login_page).pack()
 
     def register_user(self):
         uname = self.signup_username.get().strip()
@@ -150,12 +150,12 @@ class GradeTrackerApp:
         btn_frame = tk.Frame(self.root)
         btn_frame.pack(pady=12)
 
-        tk.Button(btn_frame, text="Manage Courses", width=20, command=self.manage_courses_page).grid(row=0, column=0, padx=6, pady=6)
-        tk.Button(btn_frame, text="Add / Update Student Grade", width=20, command=self.add_student_grade_page).grid(row=0, column=1, padx=6, pady=6)
-        tk.Button(btn_frame, text="Edit / Delete Student Records", width=22, command=self.edit_delete_page).grid(row=0, column=2, padx=6, pady=6)
-        tk.Button(btn_frame, text="Generate Student Report (by ID)", width=22, command=self.generate_report_page).grid(row=1, column=0, padx=6, pady=6)
-        tk.Button(btn_frame, text="All Students Report (table)", width=22, command=self.all_students_report).grid(row=1, column=1, padx=6, pady=6)
-        tk.Button(btn_frame, text="Logout", width=20, command=self.logout).grid(row=1, column=2, padx=6, pady=6)
+        tk.Button(btn_frame, text="Manage Courses",bg='#b87c37',fg='black',width=20, command=self.manage_courses_page).grid(row=0, column=0, padx=6, pady=6)
+        tk.Button(btn_frame, text="Add / Update Student Grade",bg='#b87c37',fg='black', width=20, command=self.add_student_grade_page).grid(row=0, column=1, padx=6, pady=6)
+        tk.Button(btn_frame, text="Edit / Delete Student Records",bg='#b87c37',fg='black', width=22, command=self.edit_delete_page).grid(row=0, column=2, padx=6, pady=6)
+        tk.Button(btn_frame, text="Generate Student Report (by ID)",bg='#b87c37',fg='black', width=22, command=self.generate_report_page).grid(row=1, column=0, padx=6, pady=6)
+        tk.Button(btn_frame, text="All Students Report (table)",bg='#b87c37',fg='black', width=22, command=self.all_students_report).grid(row=1, column=1, padx=6, pady=6)
+        tk.Button(btn_frame, text="Logout",bg='#c90a14',fg='white', width=20, command=self.logout).grid(row=1, column=2, padx=6, pady=6)
 
     def create_student_home(self):
         for w in self.root.winfo_children():
