@@ -1,0 +1,10 @@
+bg images--8 images
+to be downloaded and renamed as  
+  admin_bg
+  allstudents_bg
+  courses_bg
+  edit_bg
+  grade_bg
+  login_bg
+  report_bg
+  signup_bg
